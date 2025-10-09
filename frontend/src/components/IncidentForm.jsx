@@ -16,10 +16,47 @@ function IncidentForm() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert('Form Submitted!');
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const dataToSend = {
+    reporterName: formData.reporterName,
+    reporterRole: formData.reporterRole,
+    type: formData.type,
+    description: formData.description,
+    location: {
+      latitude: parseFloat(formData.latitude),
+      longitude: parseFloat(formData.longitude),
+    },
+    severity: formData.severity,
   };
+
+  try {
+    const response = await fetch('http://localhost:5000/api/incidents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataToSend),
+    });
+
+    if (response.ok) {
+      alert('Incident reported successfully!');
+      setFormData({
+        reporterName: '',
+        reporterRole: 'citizen',
+        type: 'flood',
+        description: '',
+        latitude: '',
+        longitude: '',
+        severity: 'low',
+      });
+    } else {
+      alert('Failed to report incident');
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit} className='max-w-xl mx-auto p-4 bg-white shadow rounded'>
